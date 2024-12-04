@@ -1,0 +1,67 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load Covid-19 Dataset
+df = pd.read_csv('covid_19_clean_complete.csv')
+
+# Display the first few rows
+print(df.head())
+
+# Convert 'Date' column to datetime
+df['Date'] = pd.to_datetime(df['Date'], dayfirst=True)
+
+# Fill missing values with 0
+df.fillna(0, inplace=True)
+
+# Filter data for a specific country (e.g., India)
+india_data = df[df['Country'] == 'India']
+
+# 1.Plotting Total Cases Over Time
+# Line Chart: Show trends of cases, deaths, and recoveries over time.
+plt.figure(figsize=(10, 6))
+plt.plot(india_data['Date'], india_data['Confirmed'], label='Confirmed Cases', color='blue')
+plt.plot(india_data['Date'], india_data['Deaths'], label='Deaths', color='red')
+plt.plot(india_data['Date'], india_data['Recovered'], label='Recovered', color='green')
+
+plt.title('COVID-19 Cases Over Time in the India')
+plt.xlabel('Date')
+plt.ylabel('Number of Cases')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+# 2.Country-Wise Comparison
+# Group by country and get the latest data
+latest_data = df[df['Date'] == df['Date'].max()]
+country_cases = latest_data.groupby('Country')['Confirmed'].sum()
+
+# Plot a bar chart (Bar Chart: Highlight country-wise comparisons for confirmed cases.)
+country_cases.sort_values(ascending=False).head(10).plot(kind='bar', figsize=(10, 6), color='orange')
+plt.title('Top 10 Countries by Confirmed Cases')
+plt.xlabel('Country')
+plt.ylabel('Number of Cases')
+plt.show()
+
+# 3.Active Cases Distribution (Pie Chart)
+# Pie Chart: Provide a visual representation of active, recovered, and death proportions.
+# Calculate active cases
+#india_data['Active'] = india_data['Confirmed'] - (india_data['Deaths'] + india_data['Recovered'])
+india_data.loc[:, 'Active'] = india_data['Confirmed'] - (india_data['Deaths'] + india_data['Recovered'])
+
+# Get the latest data
+latest_india = india_data.iloc[-1]
+
+# Create a pie chart
+labels = ['Active', 'Recovered', 'Deaths']
+sizes = [latest_india['Active'], latest_india['Recovered'], latest_india['Deaths']]
+colors = ['yellow', 'green', 'red']
+
+plt.figure(figsize=(8, 8))
+plt.pie(sizes, labels=labels, autopct='%1.1f%%', colors=colors, startangle=90)
+plt.title('COVID-19 Case Distribution in the India')
+plt.show()
+
+# Expected Outcomes:
+# 1.Line Charts: Show trends of cases, deaths, and recoveries over time.
+# 2.Bar Charts: Highlight country-wise comparisons for confirmed cases.
+# 3.Pie Charts: Provide a visual representation of active, recovered, and death proportions.
