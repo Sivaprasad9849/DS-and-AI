@@ -1,0 +1,42 @@
+#1. import the necessary libraries
+import pandas as pd
+import matplotlib.pyplot as plt
+
+#2. Load sales data
+df = pd.read_csv('sales_data.csv') # df means: Data frame
+
+#3. Print first five rows and last five rows
+print("First five rows:\n", df.head())
+print("Last five rows:\n", df.tail())
+
+#4. Check for null values
+print("Check Null valuesdf:\n", df.isnull().sum())
+
+#5. Show basic Statistics
+print("Basic Statistics:\n", df.describe())
+
+#6. Plot sales over time (by using line chart)
+df['Date'] = pd.to_datetime(df['Date']) # Convert Dates to Datetime Format
+df.groupby('Date')['Sales'].sum().plot(kind='line', title='Total Sales Over Time') # calculates the total (sum) of the Sales for each date.
+plt.show() # The x-axis represents the Date.The y-axis represents the Total Sales.
+
+#7. Select only numeric columns for correlation
+numeric_df = df.select_dtypes(include=['number'])
+# Compute the correlation matrix
+correlation = numeric_df.corr()
+
+# Plot the heatmap
+plt.figure(figsize=(8, 6))  # Set the figure size
+plt.matshow(correlation, fignum=1)  # fignum=1 ensures it uses the same figure
+plt.colorbar()  # Add color bar for reference
+plt.title('Correlation Heatmap', pad=20)  # Add a title with padding
+plt.show()
+
+# 8. Top 5 products by sales (by using Bar chart)
+top_products = df.groupby('Product')['Sales'].sum().nlargest(5) # nlargest(5): Selects the 5 largest values from the grouped data, sorted in descending order.
+top_products.plot(kind='bar', title='Top 5 Products by Sales')
+plt.show()
+# What happens in this Bar chart
+# X-axis: Displays the names of the top 5 products.
+# Y-axis: Represents total sales for each product.
+# Bars: The height of each bar corresponds to the sales of a product, sorted in descending order.
