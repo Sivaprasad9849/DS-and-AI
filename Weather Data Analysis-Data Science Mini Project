@@ -1,0 +1,81 @@
+# Weather Data Analysis: Mini Project (Data Science Project)
+Objective:
+-Analyze temperature, humidity, and rainfall data
+
+Tasks:
+- Calculate monthly average for weather parameters.
+- Identify the month with the highest rainfall.
+- Plot temperature trends using matplotlib (optional).
+
+> Expected Output
+- Monthly Averages Table:
+Displays the mean temperature, humidity, and rainfall for each month.
+- Month with the Highest Rainfall:
+Prints the month number with the highest rainfall.
+- Temperature Trend Plot:
+Line chart showing daily temperature changes throughout the year.
+- Monthly Average Temperature and Rainfall Plots:
+Bar charts comparing monthly averages for temperature and rainfall
+
+*************************************************************************************
+#Step 1: Import Required Libraries
+#First, we import the essential Python libraries for data analysis and visualization.
+# Import necessary libraries
+import numpy as np  # For numerical computations
+import pandas as pd  # For data manipulation and analysis
+import matplotlib.pyplot as plt  # For data visualization
+
+#Step 2: Create (or Load) the Weather Dataset
+data = {
+    'date': pd.date_range(start = '2024-01-01', end = '2024-12-31', freq = 'D'), # Daily dates for one year
+    'Temperature': np.random.randint(15, 40, size = 366), #randint(start, stop, size) # Random temperatures between 15°C and 40°C
+    'Humidity': np.random.randint(30, 90, size=366),  # Random humidity percentages
+    'Rainfall': np.random.uniform(0, 50, size=366)  # Random rainfall in mm
+}
+
+#Convert the data dictionary into a Pandas DataFrame
+weather_df = pd.DataFrame(data)
+
+# Display the first few rows of the dataset
+#print(weather_df.head())
+weather_df
+
+#Step 3: Add a 'Month' Column
+#We extract the month from the Date column to group data by months.
+# Add a 'Month' column for grouping
+weather_df['Month'] = weather_df['date'].dt.month
+
+# Display the updated DataFrame with the 'Month' column
+weather_df.head()
+
+#Step 4: Calculate Monthly Averages
+#Group the data by the Month column and calculate the average of Temperature, Humidity, and Rainfall.
+# Group data by month and calculate monthly averages
+weather = ['Temperature', 'Humidity', 'Rainfall'] #-----???
+#packing, unpacking
+#type(weather) > tuple
+
+monthly_averages = weather_df.groupby('Month')[weather].mean()
+monthly_averages
+
+#Step 5: Identify the Month with the Highest Rainfall
+#We find the month with the highest average rainfall using .idxmax()
+# Find the month with the highest average rainfall
+max_rainfall_month = monthly_averages['Rainfall'].idxmax()
+#print(monthly_averages['Rainfall'])
+#print(max_rainfall_month)
+# Display the result
+print(f"The month with the highest average rainfall is: {max_rainfall_month}")
+
+#Step 6: Plot Daily Temperature Trends
+#Create a line plot to visualize temperature trends across the year.
+# Plot daily temperature trends
+plt.figure(figsize = (12, 6)) #setting up the figure size
+plt.plot(weather_df['date'], weather_df['Temperature'], label='Daily Temperature', color='red', linewidth = 1)
+# Add title and labels
+plt.title('Daily Temperature Trends (2024)', fontsize=14)
+plt.xlabel('Date', fontsize=12)
+plt.ylabel('Temperature (°C)', fontsize=12)
+plt.legend()
+plt.grid(True)  # Add a grid for better readability
+plt.show()
