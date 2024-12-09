@@ -1,0 +1,281 @@
+1. Sales Performance Dashboard
+Tasks:
+Plot monthly sales data using a line chart.
+Highlight the month with the highest sales using annotations.
+Use bar charts to compare product-wise sales.
+
+Requirements:
+matplotlib.pyplot, pandas, and a CSV file with columns: Month, Product, Sales.
+
+import matplotlib.pyplot as plt
+import pandas as pd
+
+# Sample data
+data = {
+    'Month': ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    'Product': ['A', 'B', 'C', 'A', 'B', 'C', 'A', 'B', 'C', 'A', 'B', 'C'],
+    'Sales': [200, 150, 300, 250, 400, 350, 300, 450, 500, 550, 600, 700]
+}
+
+# Create a DataFrame
+df = pd.DataFrame(data)
+
+# 1. Plot Monthly Sales Data using a Line Chart
+monthly_sales = df.groupby('Month')['Sales'].sum()
+
+plt.figure(figsize=(14, 7))
+plt.subplot(1, 2, 1)
+plt.plot(monthly_sales.index, monthly_sales.values, marker='o', linestyle='-', label='Monthly Sales')
+plt.title('Monthly Sales Trend')
+plt.xlabel('Month')
+plt.ylabel('Sales')
+plt.grid(True)
+
+# 2. Highlight the Month with the Highest Sales
+max_month = monthly_sales.idxmax()
+max_sales = monthly_sales.max()
+plt.annotate(f'Highest: {max_sales}', xy=(max_month, max_sales), xytext=(max_month, max_sales + 100),
+             arrowprops=dict(facecolor='red', arrowstyle='->'), fontsize=10, color='red')
+
+# 3. Use Bar Charts to Compare Product-wise Sales
+product_sales = df.groupby('Product')['Sales'].sum()
+
+plt.subplot(1, 2, 2)
+plt.bar(product_sales.index, product_sales.values, color=['skyblue', 'orange', 'green'], alpha=0.8)
+plt.title('Product-wise Sales Comparison')
+plt.xlabel('Product')
+plt.ylabel('Sales')
+
+# Display the plots
+plt.tight_layout()
+plt.show()
+*******************************************************************************************************
+2. Temperature Trends
+Tasks:
+Plot daily temperatures of two cities over a week using line charts with different colors.
+Add gridlines and legends for clarity.
+Highlight weekends with shaded regions.
+
+Requirements:
+numpy, matplotlib.pyplot, and a dataset with Date, City_A_Temp, City_B_Temp.
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Sample dataset with dates
+data = {
+    'Date': ['2024-12-01', '2024-12-02', '2024-12-03', '2024-12-04', '2024-12-05', '2024-12-06', '2024-12-07'],
+    'Day': ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    'City_A_Temp': [30, 32, 31, 29, 28, 27, 26],
+    'City_B_Temp': [25, 26, 27, 28, 29, 30, 31]
+}
+
+# Combine Date and Day for labeling
+labels = [f"{date} ({day})" for date, day in zip(data['Date'], data['Day'])]
+
+# Create x values for plotting
+days = np.arange(len(data['Date']))  # [0, 1, 2, ..., 6]
+
+# 1. Plot the temperatures
+plt.figure(figsize=(12, 6))
+plt.plot(days, data['City_A_Temp'], marker='o', label="City A", color="blue", linestyle="-")
+plt.plot(days, data['City_B_Temp'], marker='s', label="City B", color="red", linestyle="--")
+
+# 2. Add labels and gridlines
+plt.title("Temperature Trends Over a Week")
+plt.xlabel("Date")
+plt.ylabel("Temperature (°C)")
+plt.xticks(days, labels, rotation=45)  # Add dates with days and rotate for better readability
+plt.grid(color='gray', linestyle='--', linewidth=0.5)
+
+# 3. Highlight weekends (Saturday and Sunday)
+weekend_start = 5  # Index for Saturday
+weekend_end = 6    # Index for Sunday
+plt.axvspan(weekend_start - 0.5, weekend_end + 0.5, color='yellow', alpha=0.3, label="Weekend")
+
+# Add legend for clarity
+plt.legend()
+
+# Show the plot
+plt.tight_layout()
+plt.show()
+********************************************************************************************************
+3. Movie Ratings Analysis
+Tasks:
+Visualize the distribution of ratings using a histogram.
+Compare the average ratings of different genres using a bar chart.
+Add titles and labels for each plot.
+
+Requirements:
+pandas, matplotlib.pyplot, and a dataset with Movie_Name, Genre(Caste), Rating.
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Updated dataset with 10 movies
+data = {
+    "Movie_Name": ["Movie1", "Movie2", "Movie3", "Movie4", "Movie5", "Movie6", "Movie7", "Movie8", "Movie9", "Movie10"],
+    "Genre": ["Action", "Comedy", "Drama", "Action", "Drama", "Comedy", "Thriller", "Action", "Drama", "Comedy"],
+    "Rating": [4.2, 3.5, 4.8, 3.9, 4.6, 3.7, 4.3, 4.0, 4.9, 3.6]
+}
+df = pd.DataFrame(data)
+
+# 1. Visualize the distribution of ratings using a histogram
+plt.figure(figsize=(8, 5))
+plt.hist(df["Rating"], bins=5, color="skyblue", edgecolor="black")
+plt.title("Distribution of Movie Ratings", fontsize=14)
+plt.xlabel("Rating", fontsize=12)
+plt.ylabel("Frequency", fontsize=12)
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.show()
+
+# 2. Compare the average ratings of different genres using a bar chart
+average_ratings = df.groupby("Genre")["Rating"].mean()
+
+# 3. Add titles and labels for each plot.
+plt.figure(figsize=(8, 5))
+average_ratings.plot(kind="bar", color="salmon", edgecolor="black")
+plt.title("Average Ratings by Genre", fontsize=14)
+plt.xlabel("Genre", fontsize=12)
+plt.ylabel("Average Rating", fontsize=12)
+plt.xticks(rotation=45)
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.show()
+********************************************************************************************
+4. Population Growth Comparison
+Tasks:
+Create a line chart to compare the population growth of two countries over the years.
+Add markers for every 5th year.
+Use a secondary y-axis for percentage growth rate.
+
+Requirements:
+pandas, matplotlib.pyplot, and a dataset with Year, Country_A_Pop, Country_B_Pop.
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Sample dataset with 10 years of population data
+data = {
+    "Year": [2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009],
+    "Country_A_Pop": [50, 52, 54, 57, 60, 64, 68, 72, 77, 82],  # in millions
+    "Country_B_Pop": [40, 42, 45, 47, 50, 54, 59, 65, 72, 80],  # in millions
+}
+
+# Create a DataFrame
+df = pd.DataFrame(data)
+
+# Calculate percentage growth rates for each country
+df["Country_A_Growth_Rate"] = df["Country_A_Pop"].pct_change() * 100
+df["Country_B_Growth_Rate"] = df["Country_B_Pop"].pct_change() * 100
+
+# Plot the population trends
+fig, ax1 = plt.subplots(figsize=(10, 6))
+
+# 1. Line chart for population
+ax1.plot(df["Year"], df["Country_A_Pop"], label="Country A Population", color="blue", marker="o")
+ax1.plot(df["Year"], df["Country_B_Pop"], label="Country B Population", color="green", marker="o")
+ax1.set_title("Population Growth Comparison", fontsize=16)
+ax1.set_xlabel("Year", fontsize=12)
+ax1.set_ylabel("Population (in millions)", fontsize=12)
+ax1.grid(axis="y", linestyle="--", alpha=0.7)
+
+# 2. Add markers for every 5th year
+for year, pop_a, pop_b in zip(df["Year"], df["Country_A_Pop"], df["Country_B_Pop"]):
+    if year % 5 == 0:
+        ax1.scatter(year, pop_a, color="blue", s=50, edgecolor="black", zorder=5)
+        ax1.scatter(year, pop_b, color="green", s=50, edgecolor="black", zorder=5)
+
+# 3. Secondary y-axis for growth rates
+ax2 = ax1.twinx()
+ax2.plot(df["Year"], df["Country_A_Growth_Rate"], label="Country A Growth Rate", color="blue", linestyle="--", marker="x")
+ax2.plot(df["Year"], df["Country_B_Growth_Rate"], label="Country B Growth Rate", color="green", linestyle="--", marker="x")
+ax2.set_ylabel("Growth Rate (%)", fontsize=12)
+
+# Combine legends
+lines, labels = ax1.get_legend_handles_labels()
+lines2, labels2 = ax2.get_legend_handles_labels()
+ax1.legend(lines + lines2, labels + labels2, loc="upper left")
+
+plt.show()
+*************************************************************************************************************************************
+5. Website Traffic Analysis
+Tasks:
+Plot daily visits using a line chart with different line styles for weekdays and weekends.
+Use a stacked bar chart to show traffic sources (e.g., organic, paid, referral).
+Include a subplot for bounce rates as a pie chart.
+
+Requirements:
+matplotlib.pyplot, and a dataset with Date, Visits, Traffic_Source, Bounce_Rate.
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Sample dataset
+data = {
+    "Date": pd.date_range(start="2024-01-01", periods=10, freq="D"),
+    "Visits": [120, 200, 150, 300, 400, 350, 180, 220, 250, 300],
+    "Traffic_Source": [
+        {"Organic": 50, "Paid": 30, "Referral": 40},
+        {"Organic": 80, "Paid": 50, "Referral": 70},
+        {"Organic": 60, "Paid": 40, "Referral": 50},
+        {"Organic": 100, "Paid": 80, "Referral": 120},
+        {"Organic": 150, "Paid": 100, "Referral": 150},
+        {"Organic": 120, "Paid": 80, "Referral": 150},
+        {"Organic": 90, "Paid": 50, "Referral": 40},
+        {"Organic": 110, "Paid": 60, "Referral": 50},
+        {"Organic": 120, "Paid": 80, "Referral": 50},
+        {"Organic": 150, "Paid": 100, "Referral": 50},
+    ],
+    "Bounce_Rate": [0.2, 0.25, 0.18, 0.30, 0.22, 0.28, 0.26, 0.20, 0.24, 0.27],
+}
+
+# Create a DataFrame
+df = pd.DataFrame(data)
+
+# Extract traffic sources into separate columns
+traffic_sources = pd.DataFrame(df["Traffic_Source"].tolist(), index=df.index)
+df = pd.concat([df, traffic_sources], axis=1)
+
+# 1. Line chart for daily visits
+plt.figure(figsize=(12, 6))
+weekdays = df["Date"].dt.weekday < 5
+plt.plot(df["Date"][weekdays], df["Visits"][weekdays], label="Weekdays", linestyle="-", marker="o", color="blue")
+plt.plot(df["Date"][~weekdays], df["Visits"][~weekdays], label="Weekends", linestyle="--", marker="o", color="orange")
+plt.title("Daily Visits Over Time", fontsize=16)
+plt.xlabel("Date", fontsize=12)
+plt.ylabel("Visits", fontsize=12)
+plt.xticks(rotation=45)
+plt.legend()
+plt.grid(alpha=0.5)
+plt.tight_layout()
+plt.show()
+
+# 2. Stacked bar chart for traffic sources
+plt.figure(figsize=(12, 6))
+plt.bar(df["Date"], df["Organic"], label="Organic", color="green", edgecolor="black")
+plt.bar(df["Date"], df["Paid"], bottom=df["Organic"], label="Paid", color="blue", edgecolor="black")
+plt.bar(df["Date"], df["Referral"], bottom=df["Organic"] + df["Paid"], label="Referral", color="purple", edgecolor="black")
+plt.title("Traffic Sources", fontsize=16)
+plt.xlabel("Date", fontsize=12)
+plt.ylabel("Visits", fontsize=12)
+plt.xticks(rotation=45)
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+# 3. Pie chart for bounce rates
+avg_bounce_rate = df["Bounce_Rate"].mean()
+below_avg = (df["Bounce_Rate"] < avg_bounce_rate).sum()
+above_avg = (df["Bounce_Rate"] >= avg_bounce_rate).sum()
+plt.figure(figsize=(6, 6))
+plt.pie(
+    [below_avg, above_avg],
+    labels=["Below Avg", "Above Avg"],
+    autopct="%1.1f%%",
+    colors=["lightgreen", "salmon"],
+    startangle=140,
+    explode=(0.1, 0),
+)
+plt.title("Bounce Rate Distribution", fontsize=14)
+plt.tight_layout()
+plt.show()
