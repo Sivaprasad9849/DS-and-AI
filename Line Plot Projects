@@ -1,0 +1,295 @@
+1. Temperature Trends Over a Year  
+- Objective: Visualize monthly average temperatures for a city to identify seasonal patterns.
+
+# Step 1: import necessacry libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import calendar  # To get month names
+
+# Step 2: Define the data
+data = {
+    'Date': pd.date_range(start='2024-01-01', end='2024-12-31', freq='D'),  # Daily dates for one year
+    'Temperature': np.random.randint(15, 40, size=366),  # Random temperatures between 15°C and 40°C
+    'City': np.random.choice(['Hyderabad', 'Pune', 'Chennai', 'Bengaluru', 'Delhi', 'Vizag'], size=366)  # Random cities for each day
+}
+# # Create DataFrame
+df = pd.DataFrame(data)
+df
+
+# Step 3: Extract month and year from the Date column
+df['Month'] = df['Date'].dt.month
+df['Year'] = df['Date'].dt.year
+
+# Step 4: Group by year, month, and city, then calculate the average temperature
+monthly_avg_temp = df.groupby(['Year', 'Month', 'City'])['Temperature'].mean().reset_index()
+print("Monthly Average Temperature:\n", monthly_avg_temp)
+
+# Step 5: Plotting the monthly average temperatures for each city
+plt.figure(figsize=(12, 6))
+
+# Step 6: Plot a line for each city
+for city in monthly_avg_temp['City'].unique():
+    city_data = monthly_avg_temp[monthly_avg_temp['City'] == city]
+    
+    # Convert month numbers to month names
+    month_names = [calendar.month_name[month] for month in city_data['Month']]
+    
+    # Plot the line with month names on x-axis
+    plt.plot(month_names, city_data['Temperature'], label=city, marker='o')
+
+# Step 7: Customizing the plot
+plt.title('Monthly Average Temperatures in 2024')
+plt.xlabel('Month')
+plt.ylabel('Average Temperature (°C)')
+plt.xticks(rotation=45)  # Rotate month names to fit
+plt.legend(title='Cities')
+plt.grid(True)
+
+# Step 8: Show the plot
+plt.show()
+********************************************************************************************************************************
+2. Stock Price Movement  
+- Objective: Track daily closing prices of a stock over a month to observe market trends.
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Step 1: Generate sample stock price data
+np.random.seed(42)  # For reproducibility
+
+# Generate dates for a 30-day month
+dates = pd.date_range(start='2024-06-01', end='2024-06-30')
+
+# Generate random stock closing prices (e.g., between $100 and $200)
+closing_prices = np.random.uniform(100, 200, size=len(dates))
+
+# Create a DataFrame
+data = pd.DataFrame({'Date': dates, 'Closing Price': closing_prices})
+print(data)
+
+# Step 2: Plot the stock price movement using a line plot
+plt.figure(figsize=(10, 6))  # Set plot size
+plt.plot(data['Date'], data['Closing Price'], color='blue', linestyle='-', marker='o')
+
+# Step 3: Customize the plot
+plt.title('Daily Stock Price Movement for June 2024')  # Title of the plot
+plt.xlabel('Date')  # X-axis label
+plt.ylabel('Closing Price ($)')  # Y-axis label
+plt.xticks(rotation=45)  # Rotate x-axis ticks for better readability
+plt.grid(True)  # Add a grid for reference
+plt.tight_layout()  # Adjust layout to avoid clipping
+
+# Step 4: Show the plot
+plt.show()
+
+'''
+Expected Output:
+Lines for each city: Each city will have a distinct line on the plot, showing how the temperature changes month by month.
+Seasonal Patterns: By looking at the lines, we can identify the seasonal temperature trends, such as:
+Temperature Peaks in the year (summer months like March–May).
+Drops in temperature during the winter months (like December–February).
+
+Vizag and Chennai may show higher temperatures in April and June months.
+Hyderabad, Chennai may show low temperature in January and October months.
+'''
+********************************************************************************************************************************
+2. Stock Price Movement  
+- Objective: Track daily closing prices of a stock over a month to observe market trends.
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Step 1: Generate sample stock price data
+np.random.seed(42)  # For reproducibility
+
+# Generate dates for a 30-day month
+dates = pd.date_range(start='2024-06-01', end='2024-06-30')
+
+# Generate random stock closing prices (e.g., between $100 and $200)
+closing_prices = np.random.uniform(100, 200, size=len(dates))
+
+# Create a DataFrame
+data = pd.DataFrame({'Date': dates, 'Closing Price': closing_prices})
+print(data)
+
+# Step 2: Plot the stock price movement using a line plot
+plt.figure(figsize=(10, 6))  # Set plot size
+plt.plot(data['Date'], data['Closing Price'], color='blue', linestyle='-', marker='o')
+
+# Step 3: Customize the plot
+plt.title('Daily Stock Price Movement for June 2024')  # Title of the plot
+plt.xlabel('Date')  # X-axis label
+plt.ylabel('Closing Price ($)')  # Y-axis label
+plt.xticks(rotation=45)  # Rotate x-axis ticks for better readability
+plt.grid(True)  # Add a grid for reference
+plt.tight_layout()  # Adjust layout to avoid clipping
+
+# Step 4: Show the plot
+plt.show()
+
+'''
+# Outcome:
+It will generate a line plot with 30 points, one for each day in June 2024.
+The x-axis will display the dates, and the y-axis will show the closing stock prices.
+The plot will be customized with a title, axis labels, gridlines, and rotated x-axis labels to make the data clear and easy to interpret.
+
+# Expected Output:
+A line plot where:
+The x-axis shows the dates (June 1st to June 30th).
+The y-axis shows the closing prices.
+The line connects the daily closing prices, with markers indicating the values.
+'''
+*******************************************************************************************************************
+3. Population Growth Analysis  
+- Objective: Plot the population growth of a country over the last century to analyze trends. 
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Step 1: Create sample data for population growth (in millions)
+# Representing population for each decade from 1920 to 2020
+years = np.arange(1920, 2021, 10)  # Decades: 1920, 1930, ..., 2020
+population = [50, 60, 75, 90, 110, 140, 180, 220, 260, 300, 350]  # Sample population in millions
+
+# Step 2: Create a DataFrame
+data = pd.DataFrame({
+    'Year': years,
+    'Population (millions)': population
+})
+
+# Step 3: Plot the population growth over the decades
+plt.figure(figsize=(10, 6))
+plt.plot(data['Year'], data['Population (millions)'], marker='o', color='green', linestyle='-', markersize=6)
+
+# Step 4: Customize the plot
+plt.title('Population Growth Over the Last Century')
+plt.xlabel('Year')
+plt.ylabel('Population (in millions)')
+plt.xticks(years, rotation=45)  # Rotate x-axis labels for better readability
+plt.grid(True)
+
+# Step 5: Show the plot
+plt.tight_layout()
+plt.show()
+
+'''
+# Expected Outcome:
+> The plot will show the population growth of a country over the past century, with data points every decade.
+> The x-axis will represent the years (1920, 1930, ..., 2020), and the y-axis will represent the population in millions.
+> The plot will visually show the steady increase in population, highlighting trends such as accelerated growth after certain periods.
+'''
+********************************************************************************************************************************************
+4. Sales Performance Over Time  
+- Objective: Analyze weekly sales performance of a product to identify growth or decline periods. 
+
+#Step 1: Import necessary libraries
+import pandas as pd
+import matplotlib.pyplot as plt
+
+#Step 2: Create the dataset with 52 weeks of data
+data = {
+    'Week': pd.date_range(start='2024-01-01', end='2024-12-31', freq='W'),  # 52 weeks
+    'Product': ['Samsung', 'Apple', 'HP'] * 17 + ['Samsung'],  # Repeating for 52 weeks
+    'Sales': [200, 150, 300, 250, 400, 350, 300, 450, 500, 550, 600, 650, 700] * 4  # Exactly 52 sales values
+}
+
+# Create the DataFrame
+df = pd.DataFrame(data)
+print(df)
+
+#Step 3: Calculate the weekly sales change (growth or decline)
+df['Sales Change'] = df.groupby('Product')['Sales'].diff().fillna(0)
+
+#Step 4: Plot sales performance for each product
+plt.figure(figsize=(12, 6))
+for product in df['Product'].unique():
+    product_data = df[df['Product'] == product]
+    plt.plot(product_data['Week'], product_data['Sales'], marker='o', label=f'{product} Sales')
+
+    # Highlight growth periods (where sales increased)
+    growth_periods = product_data[product_data['Sales Change'] > 0]
+    plt.scatter(growth_periods['Week'], growth_periods['Sales'], color='green', marker='^', label=f'{product} Growth')
+
+    # Highlight decline periods (where sales decreased)
+    decline_periods = product_data[product_data['Sales Change'] < 0]
+    plt.scatter(decline_periods['Week'], decline_periods['Sales'], color='red', marker='v', label=f'{product} Decline')
+#Step 5: Add labels and titles
+plt.title('Weekly Sales Performance by Product (2024)', fontsize=16)
+plt.xlabel('Week', fontsize=12)
+plt.ylabel('Sales', fontsize=12)
+plt.legend(title='Product')
+plt.grid(True)
+plt.tight_layout()
+plt.xticks(rotation=45)  # Rotate week labels for better readability
+plt.show()
+
+#Step 6: Print summary of growth and decline periods
+for product in df['Product'].unique():
+    product_data = df[df['Product'] == product]
+    growth_count = product_data[product_data['Sales Change'] > 0].shape[0]
+    decline_count = product_data[product_data['Sales Change'] < 0].shape[0]
+    print(f"{product} - Growth Periods: {growth_count}, Decline Periods: {decline_count}")
+********************************************************************************************************************************************
+5. Website Traffic Analysis  
+- Objective: Plot daily website visitor counts over a month to understand traffic trends.
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Step 1: Generate a sample dataset (daily website visitors)
+date_range = pd.date_range(start='2024-01-01', end='2024-01-31', freq='D')  # 31 days in January 2024
+np.random.seed(0)  # For reproducible random results
+
+# Simulating daily visitors with some random fluctuations (between 500 and 2000 visitors)
+visitor_counts = np.random.randint(500, 2000, size=len(date_range))
+
+# Step 2: Create a DataFrame
+data = pd.DataFrame({
+    'Date': date_range,
+    'Visitors': visitor_counts
+})
+print(data)
+# Step 3: Plot the data
+plt.figure(figsize=(10, 6))
+plt.plot(data['Date'], data['Visitors'], marker='o', color='b', label='Website Visitors')
+
+# Step 4: Customize plot
+plt.title('Daily Website Visitor Counts (January 2024)', fontsize=14)
+plt.xlabel('Date', fontsize=12)
+plt.ylabel('Visitors', fontsize=12)
+plt.xticks(rotation=45)  # Rotate date labels for better readability
+plt.grid(True)
+plt.legend()
+
+# Show plot
+plt.tight_layout()
+plt.show()
+
+'''
+# Expected Outcome:
+> X-axis (Dates): This will represent the days of the month (from January 1 to January 31).
+> Y-axis (Number of Visitors): This represents the number of website visitors on each respective day.
+> Line Plot: The line plot will show the variation in the number of visitors across different days.
+
+# Key Insights You Could Expect from the Plot:
+1. Daily Fluctuations:
+> The plot will help visualize spikes and drops in visitor counts.For example, you might see higher traffic during weekends or promotional campaigns.
+
+3. Trends:
+> If traffic is increasing, the line will show an upward trend, indicating growing interest or success of marketing campaigns.
+> If traffic is decreasing, the line will show a downward trend, signaling potential issues like poor engagement or competition.
+
+3. Identifying Peaks and Valleys:
+> Peaks: Days with unusually high traffic might indicate a special event, campaign, or a viral moment.
+> Valleys: Days with lower traffic may suggest quieter periods or the need for targeted marketing.
+
+4. Weekday/Weekend Patterns:
+> You may observe traffic patterns like higher traffic on weekends or during weekdays, helping you make decisions
+  about when to publish new content or run ads.
+'''
+
