@@ -1,0 +1,126 @@
+1. Employee Salary Distribution  
+- Objective: Analyze the distribution of salaries in a company to identify disparities.
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Sample data
+data = {
+    "EmployeeID": range(1, 16), #range(start, stop+1) - starts from 1 (inclusive), ends before 16 (exclusive)
+    "Salary": [35000, 38000, 39000, 40000, 41000, 42000, 45000, 48000,
+               49000, 50000, 51000, 52000, 90000, 120000, 150000]
+}
+df = pd.DataFrame(data)
+print(df)
+
+# Plotting the box plot
+plt.figure(figsize=(8, 5))
+plt.boxplot(df['Salary'], vert=False, patch_artist=True, boxprops=dict(facecolor='lightblue'))
+
+# Customizing the plot
+plt.title('Employee Salary Distribution', fontsize=14)
+plt.xlabel('Salary ($)', fontsize=12)
+plt.yticks([1], ['All Employees'])  # Label the single box
+plt.grid(axis='x', linestyle='--', alpha=0.7)
+
+# Display the plot
+plt.tight_layout()
+plt.show()
+************************************************************************************************************************
+
+2. Exam Scores Spread  
+- Objective: Compare the spread of exam scores for different subjects in a class.
+
+# Step 1: Import necessary libraries
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Step 2: Define data for exam scores in different subjects
+subjects = ['Math', 'English', 'Science', 'History', 'Art']
+scores = [
+    [85, 78, 92, 88, 76, 95, 89, 84, 91, 87],  # Math scores
+    [70, 82, 78, 75, 85, 88, 80, 79, 77, 90],  # English scores
+    [90, 88, 85, 92, 91, 89, 87, 93, 86, 94],  # Science scores
+    [65, 72, 75, 70, 68, 80, 78, 74, 71, 73],  # History scores
+    [88, 85, 90, 92, 87, 95, 89, 91, 84, 86]   # Art scores
+]
+
+# Step 3: Create a box plot
+plt.figure(figsize=(8, 6))
+plt.boxplot(scores, labels=subjects, patch_artist=True, boxprops=dict(facecolor='skyblue'))
+
+# Step 4: Add labels and title
+plt.title('Exam Scores Spread Across Subjects', fontsize=14)
+plt.xlabel('Subjects', fontsize=12)
+plt.ylabel('Scores', fontsize=12)
+
+# Step 5: Display the plot
+plt.tight_layout()
+plt.show()
+******************************************************************************************************
+
+3. Fitness Data Analysis  
+- Objective: Visualize variations in heart rate measurements during exercises.
+
+# Step 1: Import necessary libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Step 2: Sample data
+data = {
+    'Exercise': ['Running', 'Running', 'Running', 'Cycling', 'Cycling', 'Cycling', 'Swimming', 'Swimming', 'Swimming', 'Running', 'Cycling'],
+    'Heart Rate': [150, 152, 148, 130, 132, 135, 140, 142, 138, 220, 100]  # Adding outliers (220 for Running, 100 for Cycling)
+}
+# Step 3: Create Dataframe
+df = pd.DataFrame(data)
+print(df)
+
+# Step 4: Create a box plot
+plt.figure(figsize=(10, 6))
+df.boxplot(column='Heart Rate', by='Exercise', grid=False)
+plt.title('Heart Rate Measurements During Exercises')
+plt.suptitle('')  # Suppress the default title to make it cleaner
+plt.xlabel('Exercise Type')
+plt.ylabel('Heart Rate')
+plt.show()
+**********************************************************************************************************************************************
+
+4. Housing Price Variations  
+- Objective: Show the distribution of housing prices in different neighborhoods.
+
+# Step 1: Import necessary libraries
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Step 2: Sample data: housing prices in different neighborhoods
+housing_data = {
+    "Neighborhood A": [250000, 300000, 320000, 280000, 310000],
+    "Neighborhood B": [200000, 220000, 230000, 210000, 205000],
+    "Neighborhood C": [350000, 370000, 390000, 360000, 380000],
+    "Neighborhood D": [180000, 190000, 170000, 200000, 195000]
+}
+
+# Step 3: Create Dataframe
+df = pd.DataFrame(housing_data)
+print(df)
+
+# Step 4: Prepare data for the box plot
+neighborhoods = list(housing_data.keys())
+prices = list(housing_data.values())
+
+# Step 5: Create the box plot
+plt.figure(figsize=(10, 6))
+plt.boxplot(prices, labels=neighborhoods, patch_artist=True, 
+            boxprops=dict(facecolor='lightblue', color='black'),
+            medianprops=dict(color='red'))
+
+# Step 6: Add titles and labels
+plt.title("Housing Price Distribution Across Neighborhoods", fontsize=14)
+plt.xlabel("Neighborhoods", fontsize=12)
+plt.ylabel("Housing Prices (in USD)", fontsize=12)
+
+# Step 7: Show the plot
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.show()
