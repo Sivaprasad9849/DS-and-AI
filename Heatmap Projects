@@ -1,0 +1,220 @@
+1. Correlation Matrix  
+- Objective: Visualize correlations between different features in a dataset to identify relationships.
+
+# Step 1: Import necessary libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Step 2: Generate sample data
+np.random.seed(42)  # For reproducibility
+
+# Generate random data for 100 rows: # Assume we have a dataset with 5 features: 'Feature1', 'Feature2', 'Feature3', 'Feature4', 'Feature5'
+data = {
+    'Feature1': np.random.randn(50),
+    'Feature2': np.random.randn(50),
+    'Feature3': np.random.randn(50),
+    'Feature4': np.random.randn(50),
+    'Feature5': np.random.randn(50)
+}
+# Create a DataFrame
+df = pd.DataFrame(data)
+
+# Step 3: Calculate the correlation matrix
+corr_matrix = df.corr()
+print(corr_matrix)
+
+# Step 4: Plot the correlation matrix using matplotlib
+plt.figure(figsize=(8, 6))  # Set the figure size
+
+# Create a heatmap using imshow
+plt.imshow(corr_matrix, cmap='coolwarm', interpolation='nearest')
+
+# Step 5: Customize the plot
+plt.title('Correlation Matrix Heatmap')
+plt.xlabel("Columns")
+plt.ylabel("Rows")
+plt.colorbar()  # Add a color bar to show the correlation scale
+
+# Set the labels for the x and y axes
+plt.xticks(np.arange(len(corr_matrix.columns)), corr_matrix.columns, rotation=45)
+plt.yticks(np.arange(len(corr_matrix.columns)), corr_matrix.columns)
+
+# Add gridlines
+plt.grid(False)
+
+# Display the plot
+plt.tight_layout()
+plt.show()
+*****************************************************************************************************
+
+2. Monthly Sales Heatmap  
+- Objective: Display sales data for each day in a month to detect peak days.
+
+# Step 1: Import necessary libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Step 2: Define the data
+data = {
+    'Date': pd.date_range(start='2024-01-01', end='2024-01-30', freq='D'),
+    'Products': ['TV', 'Mobile', 'Fan', 'Laptop', 'AC'] * 6,
+    'Sales': [2000, 3000, 3500, 4500, 5000, 6000] * 5
+}
+
+# Step 3: Create DataFrame
+df = pd.DataFrame(data)
+print(df)
+
+# Step 4: Pivoting the DataFrame to have Products as rows, Date as columns, and Sales as values
+df_pivoted = df.pivot(index='Products', columns='Date', values='Sales')
+
+# Step 5: Plotting the heatmap
+plt.figure(figsize=(10, 6))
+plt.imshow(df_pivoted, cmap='YlGnBu', interpolation='nearest', aspect='auto')
+
+# Step 6: Add title and labels
+plt.title('Monthly Sales Heatmap for January 2024')
+plt.xlabel('Date')
+plt.ylabel('Product')
+plt.xticks(ticks=np.arange(0, len(df_pivoted.columns), 5), labels=[date.strftime('%Y-%m-%d') for date in df_pivoted.columns[::5]], rotation=45)
+plt.yticks(np.arange(len(df_pivoted.index)), df_pivoted.index)
+
+# Step 7: Add color bar
+plt.colorbar(label='Sales')
+
+# Step 8: Show the plot
+plt.tight_layout()
+plt.show()
+******************************************************************************************************************************************************
+
+3. Weather Data Analysis  
+- Objective: Show temperature variations across different regions for a month.
+
+# Step 1: Import necessary libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Step 2: Generate sample data: 5 regions, 30 days (January)
+regions = ['North', 'South', 'East', 'West', 'Central']
+dates = pd.date_range(start='2024-01-01', end='2024-01-31', freq='D')
+
+# Step 3: Create random temperature data between -10 and 40 degrees Celsius for each region over the month
+np.random.seed(0)
+temperature_data = np.random.randint(low=-10, high=40, size=(len(regions), len(dates)))
+
+# Step 4: Create DataFrame with this data
+df = pd.DataFrame(temperature_data, columns=dates, index=regions)
+print(df)
+
+# Step 5: Plotting the heatmap
+plt.figure(figsize=(12, 6))
+plt.imshow(df, cmap='coolwarm', interpolation='nearest', aspect='auto')
+
+# Step 6: Add titles and labels
+plt.title('Temperature Variations Across Different Regions for January 2024')
+plt.xlabel('Date')
+plt.ylabel('Region')
+plt.xticks(ticks=np.arange(0, len(dates), 5), labels=[date.strftime('%Y-%m-%d') for date in dates[::5]], rotation=45)
+plt.yticks(np.arange(len(regions)), regions)
+
+# Step 7: Add color bar
+plt.colorbar(label='Temperature (°C)')
+
+# Step 8: Show the plot
+plt.tight_layout()
+plt.show()
+***********************************************************************************************************************************
+
+4. Exam Performance Matrix  
+- Objective: Highlight scores of students across different subjects to identify trends.
+
+# Step 1: Import necessary libraries
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Step 2: Create sample data
+students = ['Anand', 'Babu', 'Charlie', 'David', 'Venkat']
+subjects = ['Math', 'English', 'Science', 'History', 'Art']
+
+# Step 3: Hardcoding student scores across subjects
+scores = [
+    [85, 92, 78, 88, 95],  # Anand's scores
+    [76, 81, 69, 75, 80],  # Babu's scores
+    [90, 85, 92, 94, 88],  # Charlie's scores
+    [65, 70, 72, 80, 68],  # David's scores
+    [88, 90, 85, 91, 93],  # Venkat's scores
+]
+
+# Step 4: Create a DataFrame
+df = pd.DataFrame(scores, columns=subjects, index=students)
+print(df)
+
+# Step 5: Plotting the heatmap
+plt.figure(figsize=(10, 6))
+plt.imshow(df, cmap='YlGnBu', interpolation='nearest', aspect='auto')
+
+# Step 6: Adding labels and title
+plt.title('Student Exam Performance')
+plt.xlabel('Subjects')
+plt.ylabel('Students')
+
+# Step 7: Formatting the x-axis and y-axis
+plt.xticks(np.arange(len(subjects)), subjects, rotation=45)
+plt.yticks(np.arange(len(students)), students)
+
+# Step 8: Add a color bar to show the scale
+plt.colorbar(label='Score')
+
+# Step 9: Display the heatmap
+plt.tight_layout()
+plt.show()
+*******************************************************************************************
+
+5. Traffic Flow Analysis  
+- Objective: Represent vehicle counts at different times and locations to identify congestion.
+
+# Step 1: Import necessary libraries
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Step 2: Define traffic data
+locations = ['Lingapalli', 'JNTU', 'Ameerpet', 'Koti', 'Secunderabad']
+times = ['6 AM', '9 AM', '12 PM', '3 PM', '6 PM', '9 PM']
+
+# Step 3: Hardcoded vehicle counts at different times for each location
+vehicle_counts = [
+    [120, 150, 200, 180, 250, 100],  # Lingapalli 
+    [80, 100, 150, 130, 220, 90],   # JNTU
+    [60, 70, 90, 110, 170, 50],     # Ameerpet
+    [200, 230, 280, 260, 300, 150], # Koti
+    [100, 120, 160, 140, 190, 80],  # Secunderabad
+]
+
+# Step 4: Create a DataFrame
+df = pd.DataFrame(vehicle_counts, columns=times, index=locations)
+print(df)
+
+# Step 5: Plot the heatmap
+plt.figure(figsize=(10, 6))
+plt.imshow(df, cmap='Reds', interpolation='nearest', aspect='auto')
+
+# Step 6: Add labels and title
+plt.title('Traffic Flow Analysis')
+plt.xlabel('Time of Day')
+plt.ylabel('Location')
+
+# Step 7: Format x-axis and y-axis
+plt.xticks(np.arange(len(times)), times, rotation=45)
+plt.yticks(np.arange(len(locations)), locations)
+
+# Step 8: Add color bar to indicate vehicle counts
+plt.colorbar(label='Vehicle Count')
+
+# Step 9: Display the heatmap
+plt.tight_layout()
+plt.show()
