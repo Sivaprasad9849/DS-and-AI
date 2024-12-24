@@ -1,0 +1,198 @@
+# 1. Basic Password Strength Checker
+Case Study: Write a program to evaluate the sytrength of a password based on given rules.
+
+> Rules Finalized:
+1) Must include at least one uppercase letter, one lowercase letter, one digit,
+and one special character.
+2) Must be at leats 8 characters long.
+3) Provide feedback like "Strong," "Medium," or "weak."
+4) Challenges: Handle edge cases for special characters. ##$%#@&*
+
+#1) Must include at least one uppercase letter, one lowercase letter, one digit, and one special character.
+
+#password = input("Enter the password: ")
+#The input() function takes the password as input from the user.
+#The variable 'password' now holds the entered password as a string.
+while True:
+    # Input password
+    password = input("Enter your password (or type 'exit' to quit): ")
+#while True:
+#This means the loop will run forever unless it encounters a break statement or 
+#is otherwise interrupted by another condition (like user input or system termination). 
+    
+    # Exit condition
+    if password.lower() == "exit":
+        print("Exiting the program. Goodbye!")
+        break # Stops the infinite loop when the user types "exit."
+
+#The lower() method converts the user's input to lowercase.
+#This ensures the comparison is case-insensitive, so inputs like "EXIT" or "Exit" are treated the same as "exit."
+    
+#Assumption   
+    has_upper = False #for upper letter check
+    has_lower = False #for lower letter check
+    has_digit = False #for digit check
+    has_special = False #for special character check
+    special_charcters = "!@#$%^&*()-_=+[{]};:'\",<.>/?"
+    
+    
+#char.isupper(): checks if the character is uppercase. if true, sets has_upper to True.
+#char.islower(): checks if the character is lowercase. if true, sets has_lower to True.
+#char.isdigit(): checks if the character is a digit. if true, sets has_digit to True.
+#char in special_characters: checks if the character exists in the special_charcters string. if true, sets has_special to True.       
+
+    # Check length of the password
+    if len(password) < 8:
+        print("Weak: Password must be at least 8 characters long.")
+        continue  # The continue statement skips the current iteration and moves to the next iteration of the loop.
+        
+        # Iterate over each character in the password  
+    for char in password: #to check every character in the password
+        #print(char)
+        if char.isupper(): #check for upper
+            has_upper = True
+        elif char.islower(): #check for lower
+            has_lower = True
+        elif char.isdigit(): #check for digit
+            has_digit = True
+        elif char in special_charcters:
+            has_special = True
+    
+    # Evaluate password strength   
+    if has_upper and has_lower and has_digit and has_special:
+        print("Strong: Your password is strong!")
+    elif has_upper or has_lower or has_digit or has_special:
+        print("Medium: Add more character types for a stronger password.")
+    else:
+        print("Weak: Password does not meet criteria.")
+****************************************************************************************************************************
+# 2. Unique Number Finder Project
+-Objective: The Unique Number Finder project is to identify numbers that occur exactly once in a given list of integers.
+Expected Output:
+1. Accept a series of numbers from the user, separated by spaces.
+2. Compute the frequency of each number using a dictionary.
+3. Identify and display the numbers that appear exactly once in the list.
+
+# Step 1: Input the list of numbers
+numbers = [int(x) for x in input("Enter numbers separated by space: ").split()]
+
+# Step 2: Create a dictionary to store the frequency of each number
+frequency = {}
+
+# Step 3: Count the frequency of each number
+for number in numbers:
+    if number in frequency:
+        frequency[number] += 1
+    else:
+        frequency[number] = 1
+
+# Step 4: Find and print the numbers that appear exactly once
+unique_numbers = [number for number, count in frequency.items() if count == 1]
+
+if unique_numbers:
+    print("The unique numbers are:", unique_numbers)
+else:
+    print("There are no unique numbers.")
+*************************************************************************************************************************
+# 3. Custom Pattern Generator
+- Case Study: write a program that generates a custom triangular number pattern based on user input.
+#triangle
+#rectangle
+#square
+
+# triangle
+n = int(input("Enter the number of rows: ")) #Step 1
+num = 1 #Step 2                                
+for row in range(1, n + 1):  #Step 3 (Outer loop: Row-wise Iteration)             
+    for _ in range(row): #Step 4  (Inner loop: Column-wise Iteration)
+        print(num, end=" ") #Step 5
+        num += 1 #Step 6
+    print() # Move to the next line
+
+#rectangle
+n = int(input("Enter the number of rows: "))  # Step 1
+m = int(input("Enter the number of columns: "))  # Additional input for columns
+num = 1  # Step 2                                
+for row in range(1, n + 1):  # Step 3 (Outer loop: Row-wise Iteration)             
+    for _ in range(1, m + 1):  # Step 4 (Inner loop: Column-wise Iteration)
+        print(num, end=" ")  # Step 5
+        num += 1  # Step 6
+    print()  # Move to the next line
+
+#square
+n = int(input("Enter the size of the square: "))  # Step 1
+num = 1  # Step 2                                
+for row in range(1, n + 1):  # Step 3 (Outer loop: Row-wise Iteration)             
+    for _ in range(1, n + 1):  # Step 4 (Inner loop: Column-wise Iteration)
+        print(num, end=" ")  # Step 5
+        num += 1  # Step 6
+    print()  # Move to the next line
+**************************************************************************************************************
+# 4. Digit Frequency Counter
+
+# Step 1: Input the number (as a string to handle large numbers easily)
+while True:
+    number = input("Enter a number: ")
+
+    # Step 2: Check if the input contains only digits
+    if number.isdigit():
+        break  # If input is valid (only digits), exit the loop
+    else:
+        print("Invalid input! Please enter only digits.")
+
+# Step 3: Create a dictionary to store the frequency of each digit
+digit_frequency = {str(i): 0 for i in range(10)}  # Initialize with 0 count for each digit 0-9
+
+# Step 4: Count the frequency of each digit in the number
+for digit in number:
+    digit_frequency[digit] += 1
+
+# Step 5: Display the frequency of each digit
+print("Digit Frequency Count:")
+for digit, frequency in digit_frequency.items():
+    print(f"Digit {digit}: {frequency} times")
+*********************************************************************************************************************
+# 5.Guess the hidden word (Hangman style)
+> Project Summary: Word Guessing Game
+- The word guessing game is a simple console-based program designed to engage players in a challenging and educational guessing activity. 
+It helps players develop logical thinking and pattern recognition while providing an introduction to programming concepts like loops, 
+conditionals, and string manipulations.
+
+# Step 1: Setup Game Variables
+word = "PYTHON"  # The hidden word for players to guess
+guessed = ["_"] * len(word)  # Placeholder for unguessed letters
+attempts = 6  # Allowed incorrect attempts
+
+print("Welcome to Hangman!")
+print("Guess the word: " + " ".join(guessed)) # .join() method is used to concatenate elements of a list into a single string.
+print(f"You have {attempts} incorrect attempts remaining.\n")
+
+# Step 2: Design the Game Loop
+while attempts > 0 and "_" in guessed:
+    # Step 3: Handle User Input
+    guess = input("Guess a letter: ").strip().upper()
+    if len(guess) != 1 or not guess.isalpha():
+        print("Invalid input. Please enter a Alphabet letter.\n")
+        continue
+
+    # Step 4: Check Player’s Guess
+    if guess in word:
+        # Correct guess: Reveal all instances of the guessed letter
+        for i, letter in enumerate(word):
+            if letter == guess:
+                guessed[i] = guess
+        print(f"\nGood job! '{guess}' is in the word.")
+    else:
+        # Incorrect guess: Decrement attempts
+        attempts -= 1
+        print(f"\nSorry, '{guess}' is not in the word. You lost an attempt.")
+
+    # Step 5: Display Game Status
+    print("Guess the word: " + " ".join(guessed))
+    print(f"You have {attempts} incorrect attempts remaining.\n")
+
+# Step 6: Determine Game Outcome
+if "_" not in guessed:
+    print("Congratulations! You've guessed the word: " + word)
+else:
+    print("Game over! The hidden word was: " + word)
