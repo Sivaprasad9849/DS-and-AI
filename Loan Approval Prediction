@@ -1,0 +1,96 @@
+#7. Loan Approval Prediction
+# A bank needs an AI model to assess loan applications. Your task is to predict whether an applicant should get a loan or not.
+
+✅ Load Loan Data: Handle missing values, encode categories. 
+✅ Train Model: Logistic Regression vs. Decision Tree.   
+✅ Evaluation: Confusion Matrix, Precision-Recall Curve.   
+✅ Bonus: Deploy a Streamlit App to show predictions interactively.(Not done)
+✅ Visualize the predicted vs original.
+
+# Learning Outcome: ML in finance and credit risk analysis.
+
+# Import libraries
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, precision_recall_curve
+
+# 1.Load Loan Data: Handle missing values, encode categories. 
+df = pd.read_csv("loan_approval_dataset.csv") 
+print("Data Overview:\n", df.head())
+print("Data info:\n", df.info())
+
+# Encoding categorical variables
+label_encoders = {}
+categorical_cols = ['education', 'self_employed', 'loan_status']
+for col in categorical_cols:
+    le = LabelEncoder()
+    df[col] = le.fit_transform(df[col])
+    label_encoders[col] = le
+
+print("After Encoded dtype:\n", df.dtypes)
+print("After Encoded three columns data:\n", df[['education', 'self_employed', 'loan_status']].head())
+
+
+# Defining features and target
+X = df.drop(columns=['loan_id', 'loan_status'])
+y = df['loan_status']
+
+# Splitting data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Standardizing numerical features
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# 2.Logistic Regression Model Training
+log_reg = LogisticRegression()
+dec_tree = DecisionTreeClassifier()
+
+log_reg.fit(X_train, y_train)
+dec_tree.fit(X_train, y_train)
+
+# Predictions
+y_pred_log = log_reg.predict(X_test)
+y_pred_dectree = dec_tree.predict(X_test)
+
+# 3.Evaluation: Confusion Matrix, Precision-Recall Curve.
+print("LogisticRegression Accuracy:\n", accuracy_score(y_test, y_pred_log))
+print("LogisticRegression classification report:\n", classification_report(y_test, y_pred_log))
+print("DecisionTree Accuracy:\n", accuracy_score(y_test, y_pred_dectree))
+print("DecisionTree classification report:\n", classification_report(y_test, y_pred_dectree))
+
+# Confusion Matrix
+plt.figure(figsize=(10, 4))
+sns.heatmap(confusion_matrix(y_test, y_pred_log), annot=True, fmt='d', cmap='Blues')
+plt.title("Logistic Regression Confusion Matrix")
+plt.show()
+
+sns.heatmap(confusion_matrix(y_test, y_pred_dectree), annot=True, fmt='d', cmap='Oranges')
+plt.title("Decision Tree Confusion Matrix")
+plt.show()
+
+# Precision-Recall Curve
+precision, recall, _ = precision_recall_curve(y_test, log_reg.predict_proba(X_test)[:, 1])
+plt.plot(recall, precision, marker='.', label='Logistic Regression')
+plt.xlabel('Recall')
+plt.ylabel('Precision')
+plt.title('Precision-Recall Curve')
+plt.legend()
+plt.show()
+
+# 4.Visualize predicted vs original values
+plt.figure(figsize=(8, 6))
+plt.scatter(y_test, y_pred_log, alpha=0.7, label='Logistic Regression')
+plt.plot([min(y_test), max(y_test)], [min(y_test), max(y_test)], 'r--', label='45-degree line')
+plt.xlabel('Original Values')
+plt.ylabel('Predicted Values')
+plt.legend()
+plt.title('Predicted vs Original Values')
+plt.show()
