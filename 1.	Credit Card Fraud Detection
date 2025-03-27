@@ -1,0 +1,77 @@
+# Import libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import roc_auc_score, precision_recall_curve, classification_report
+from imblearn.over_sampling import SMOTE
+from sklearn.manifold import TSNE
+
+# Load the data
+df = pd.read_csv('creditcard1.csv')
+print("Data Overview:\n", df)
+print("Class Distribution:\n", df['Class'].value_counts())
+
+# check Null values
+print("Check Null values:\n", df.isnull().sum())
+
+# fill NaN values for colun wise
+# df['Class'].fillna(0, inplace=True)
+
+# fill Nan values entire dta
+# df.fillna(0, inplace=True)
+
+# split data as features and target, train and test
+X = df.drop(columns=['Class'])
+y = df['Class']
+# split data into train & test
+X_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+
+# Handle imbalance data using SMOTE oversampling
+smote = SMOTE(random_state=42)
+smote.fit_resample(X_train, y_train)
+X_train_resampled, y_train_resampled = smote.fit_resample(X_train, y_train)
+
+# Check class distribution after class balancing
+print("class distribution after class balancing:\n", pd.Series(y_train_resampled).value_counts())
+
+# Standardize features
+scaler = StandardScaler()
+X_train_resampled = scaler.fit_transform(X_train_resampled)
+X_test = scaler.transform(x_test)
+
+# Train Model using LogisticRegression
+model = LogisticRegression(class_weight = 'balanced', random_state=42)
+model.fit(X_train_resampled, y_train_resampled)
+
+# Predict on test data
+y_pred = model.predict(x_test)
+y_pred_proba = model.predict_proba(x_test)[:, 1]
+
+# Reduce data to 2 D using t-SNE
+tsne = TSNE(n_components=2, random_state=42)
+X_embedded = tsne.fit_transform(X_test)
+
+# Plot fraud vs. normal transactions
+plt.figure(figsize=(8,6))
+sns.scatterplot(x=X_embedded[:,0], y=X_embedded[:,1], hue=y_test, palette={0: "blue", 1: "red"})
+plt.title("t-SNE Visualization of Transactions")
+plt.show()
+
+# Calculate ROC-AUC Score
+roc_auc = roc_auc_score(y_test, y_pred_proba)
+print(f"ROC-AUC Score: {roc_auc:.2f}")
+
+# Precision-Recall Curve
+precision, recall, _ = precision_recall_curve(y_test, y_pred_proba)
+plt.plot(recall, precision, marker=".")
+plt.xlabel("Recall")
+plt.ylabel("Precision")
+plt.title("Precision-Recall Curve")
+plt.show()
+
+# Print classification report
+print(classification_report(y_test, y_pred))
