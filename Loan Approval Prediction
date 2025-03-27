@@ -1,4 +1,4 @@
-#7. Loan Approval Prediction
+# Loan Approval Prediction
 # A bank needs an AI model to assess loan applications. Your task is to predict whether an applicant should get a loan or not.
 
 ✅ Load Loan Data: Handle missing values, encode categories. 
