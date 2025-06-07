@@ -1,118 +1,305 @@
 # Customer Churn Prediction: 
 # A telecom company is losing customers. Your job is to predict who will leave so they can take preventive actions.
 
-✅ Load Customer Data: Identify key features (contract type, tenure, charges). 
-✅ Feature Engineering: Convert categorical variables (One-Hot Encoding).
-✅ Train Model: Logistic Regression (solver='saga' for large dataset).   
-✅ Evaluate: Precision, Recall, F1-score, Confusion Matrix.
-✅ Insights: What factors influence churn the most?. 
-✅ Visualize the predicted vs original.
+import pandas as pd #it is used for data manipulation, analysis, etc. -- maths, statistics ready-made
+import matplotlib.pyplot as plt #it is used for data visualization -- imagination
 
-# Learning Outcome: Business applications of classification models.
+df = pd.read_csv("customer_churn.csv") #reading / loading data from csv file
 
-# Import libraries
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import classification_report, confusion_matrix, precision_score,  recall_score, f1_score
+#EDA -- exploratory data analysis
+# Display top 5 rows
+print("Top 5 rows:")
+print(df.head())
 
-# 1.Load Customer Data & Identify Key Features
-df = pd.read_csv("customer_churn.csv")
-print("First five rows:\n", df)
-print("Dataset Info:\n", df.info()) # Check for missing values & datatypes
+# Shape of the dataset
+print("\nDataset Shape:")
+print(df.shape)
 
-# Drop 'customerID' since it's just an identifier
-df.drop(columns=['customerID'], inplace=True)
+# Check for missing values / nulls:
+print("\nMissing Values:")
+print(df.isnull().sum(), "\n\n")
 
-# Convert 'TotalCharges' to numeric (handling empty values)
+# Display data types of all columns
+print("Data types of all columns:\n")
+print(df.dtypes)
+
+# Check for blank strings ('' or '   ') in a column
+print("\nChecking blank strings:\n", df[df['TotalCharges'].str.strip() == ''])
+#str.strip() removes spaces before checking equality with an empty string.
+
+# If 'TotalCharges' is object type, convert to numeric
 df['TotalCharges'] = pd.to_numeric(df['TotalCharges'], errors='coerce')
 
-# Fill missing numerical values with median
-df.fillna(df.median(numeric_only=True), inplace=True)
+#The parameter errors='coerce' tells Pandas to:
+#👉 Convert invalid values (non-numeric entries) into NaN (Not a Number) instead of raising an error.
+print("\nAfter converted dtype of all columns:\n", df.dtypes)
 
-# Identify categorical features (excluding 'Churn')
-categorical_features = df.select_dtypes(include=['object']).columns.tolist()
-categorical_features.remove('Churn')
+# Recheck for nulls after conversion
+print("\nMissing Values After Type Conversion:")
+print(df.isnull().sum())
 
-# 2.Feature Engineering: One-Hot Encoding for Categorical Variables
-df = pd.get_dummies(df, columns=categorical_features, drop_first=True)
+# Drop rows with null values (usually only a few rows)
+df.dropna(inplace=True)
+df.describe()
+print("\nMissing Values checking After removing nulls:")
+print(df.isnull().sum())
 
-# Convert target variable 'Churn' to binary format
-df['Churn'] = df['Churn'].map({'Yes': 1, 'No': 0})
+# Churn Distribution – Counts & Percentage
+# Count churned vs non-churned
+churn_counts = df['Churn'].value_counts()
+churn_percent = df['Churn'].value_counts(normalize=True) * 100
 
-# Select Key Features for Training
-X = df[['tenure', 'MonthlyCharges', 'TotalCharges'] + [col for col in df.columns if col.startswith('Contract_')]]
-y = df['Churn']
-print("After Encoded data:\n", df[['tenure', 'MonthlyCharges', 'TotalCharges', 'Churn']].head())
+print("\nChurn Counts:")
+print(churn_counts)
 
-# Split into Train & Test Data
+print("\nChurn Percentage:")
+print(churn_percent)
+
+# .value_counts() is a pandas DataFrame method that counts the occurrences of each unique value in a column.
+# normalize=True parameter in value_counts() calculates the relative frequencies instead of counts. It divides each count by the total number of counts (sum of counts).
+# * 100 then converts these relative frequencies to percentages.
+
+ # Step-6: Plot Churn Distribution – Pie Chart
+plt.figure(figsize=(6, 6))
+colors = ['#66b3ff', '#ff9999']
+plt.pie(churn_counts, labels=churn_counts.index, autopct='%1.1f%%', startangle=140, colors=colors)
+plt.title('Customer Churn Distribution (Pie Chart)')
+plt.axis('equal')
+plt.show()
+# '#66b3ff' is a shade of blue, and '#ff9999' is a shade of red/pink.
+# plt.pie() creates a pie chart.
+# labels=churn_counts.index: The labels (e.g., 'Yes', 'No') will be displayed on each slice.
+# autopct='%1.1f%%': Displays the percentage on each slice with 1 decimal place (e.g., 15.2%).
+# startangle=140: Rotates the chart by 140 degrees for a visually appealing angle.
+# colors=colors: Uses the defined color list for the slices.
+# plt.axis('equal'): Ensures the pie chart is a perfect circle instead of an oval by setting the aspect ratio to 'equal'.
+
+# Step 7: Plot Churn Distribution – Bar Chart
+plt.figure(figsize=(6, 4))
+plt.bar(churn_counts.index, churn_counts.values, color=['green', 'red'])
+plt.title('Customer Churn Count (Bar Chart)')
+plt.xlabel('Churn')
+plt.ylabel('Number of Customers')
+plt.grid(axis='y')
+plt.show()
+
+**2. Correlation Analysis with Numeric Features**
+
+Goal: Find numeric drivers of churn
+
+**Implementation Steps:**
+
+Select numerical columns
+
+Encode churn (Yes=1, No=0)
+
+Use corr() to visualize heatmap
+
+**Outcome:**
+
+Finds drivers like tenure, monthly_charges
+
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Encode Churn (Yes=1, No=0) and dtype changed from object to int
+df['Churn'] = df['Churn'].map({'Yes': 1, 'No': 0}).astype(int)
+df.head()
+df.dtypes
+
+# Correlation Analysis with Numeric Features
+# Select numerical columns
+numeric_df = df.select_dtypes(include=['int64', 'float64']).copy()
+print("Numerical columns:\n", numeric_df)
+
+# Compute the correlation matrix
+corr_matrix = numeric_df.corr()
+
+# Visualize the correlation matrix as a heatmap
+plt.figure(figsize=(10, 8))
+sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', linewidths=0.5)
+plt.title('Correlation Heatmap: Numeric Features vs Churn')
+plt.show()
+
+**3. Label Encoding + Logistic Regression**
+
+Goal: Predict churn using simple model
+
+Implementation Steps:
+
+Label encode categorical variables
+
+Train logistic regression
+
+Print accuracy
+
+**Outcome:**
+
+Builds base churn prediction model
+
+import pandas as pd
+from sklearn.preprocessing import LabelEncoder
+
+# Encode other categorical variables using LabelEncoder
+# Identify categorical columns
+categorical_cols = df.select_dtypes(include='object').columns
+
+# Initialize label encoder
+le = LabelEncoder()
+
+# Apply label encoding to each categorical column
+for col in categorical_cols:
+    df[col] = le.fit_transform(df[col].astype(str))
+
+print("After Encoded data:\n", df.head())
+
+**Before going to Train & Fit the model we need to implement SMOTE(Synthetic Minority Oversampling Technique).**
+
+**Why because our data is imbalenced data as per our Churn valuecounts.**
+
+churn_counts = df['Churn'].value_counts()
+churn_counts
+
+# Asper the data Total churn values: 7043 (After removed Blank reocrds: 7032)
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+from imblearn.over_sampling import SMOTE
+from sklearn.metrics import accuracy_score, classification_report
+
+# Separate the features and target
+X = df.drop(columns=["Churn"])
+y = df["Churn"]
+
+# Split dataset into train & test
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+# stratify=y ensures balanced class distributions in both training and test sets — especially important for classification problems with imbalanced target classes.
 
-# Standardize Numeric Features
+# Apply SMOTE to balance the classes in the training set
+smote = SMOTE(random_state=42)
+X_train_bal, y_train_bal = smote.fit_resample(X_train, y_train)
+
+# Check class distribution after balancing
+print(pd.Series(y_train_bal).value_counts())
+
+# Standardize features
 scaler = StandardScaler()
-X_train[['tenure', 'MonthlyCharges', 'TotalCharges']] = scaler.fit_transform(X_train[['tenure', 'MonthlyCharges', 'TotalCharges']])
-X_test[['tenure', 'MonthlyCharges', 'TotalCharges']] = scaler.transform(X_test[['tenure', 'MonthlyCharges', 'TotalCharges']])
+X_train_bal = scaler.fit_transform(X_train_bal)
+X_test = scaler.transform(X_test)
 
-# 3.Train Model: Logistic Regression
-model = LogisticRegression(solver='saga', max_iter=5000)
+# Train Logistic Regression model
+model = LogisticRegression(class_weight='balanced', random_state=42)
+model.fit(X_train_bal, y_train_bal)
+
+# Predict on test data
+y_pred = model.predict(X_test)
+y_pred_proba = model.predict_proba(X_test)[:, 1]
+print("\nAccuracy on Test Set (Logistic Regression):", accuracy_score(y_test, y_pred))
+print("\nClassification Report:\n", classification_report(y_test, y_pred))
+
+**4. Confusion Matrix + Evaluation Metrics**
+
+Goal: Evaluate predictions in-depth
+
+**Metrics Shown:**
+
+Precision
+
+Recall
+
+# Why these metrics?
+
+# Precision: How many of the predicted churns are actual churns?
+# Recall: How many of the actual churns did we catch?
+
+# In the Classification report we can see Precision and Recall Metrics score for each class.
+
+**5. Feature Importance Visualization with Tree-based Model**
+
+Goal: Know which features matter most
+
+**Outcome:**
+
+Visual explanation of top features affecting churn.
+
+# Feature Importance apply Before SMOTE
+import matplotlib.pyplot as plt
+from sklearn.ensemble import RandomForestClassifier
+
+# Train a RandomForestClassifier
+model = RandomForestClassifier()
 model.fit(X_train, y_train)
 
-# 4.Model Evaluation
-y_pred = model.predict(X_test)
-print("Accuracy:\n", accuracy_score(y_test, y_pred))
-print("Classification Report:\n", classification_report(y_test, y_pred))
+# Get feature importances
+importances = model.feature_importances_
 
-# Compute Precision, Recall, F1-score
-precision = precision_score(y_test, y_pred)
-recall = recall_score(y_test, y_pred)
-f1 = f1_score(y_test, y_pred)
+# Get feature names (assuming your features are in a DataFrame called X_train)
+feature_names = X_train.columns
 
-print(f"\n🎯 Precision: {precision:.4f}")
-print(f"📌 Recall: {recall:.4f}")
-print(f"📊 F1-score: {f1:.4f}")
-
-# Confusion Matrix
-plt.figure(figsize=(5, 4))
-sns.heatmap(confusion_matrix(y_test, y_pred), annot=True, fmt="d", cmap="Blues")
-plt.xlabel("Predicted")
-plt.ylabel("Actual")
-plt.title("Confusion Matrix")
+# Plot feature importances
+plt.figure(figsize=(10, 6))
+plt.barh(feature_names, importances)
+plt.xlabel('Importance')
+plt.title('Feature Importance')
 plt.show()
 
-# 5.Insights: Factors Influencing Churn
-feature_importance = pd.DataFrame({'Feature': X.columns, 'Coefficient': model.coef_[0]})
-feature_importance = feature_importance.sort_values(by='Coefficient', ascending=False)
+**6. ROC Curve and AUC Score**
 
-# Plot Feature Importance
-plt.figure(figsize=(10, 5))
-sns.barplot(x=feature_importance['Coefficient'], y=feature_importance['Feature'])
-plt.xlabel("Coefficient Value")
-plt.ylabel("Feature")
-plt.title("Feature Importance (Logistic Regression)")
-plt.show()
+Goal: Probabilistic evaluation of model
 
-# Scatter plot for predicted vs actual
+**Outcome:**
+
+Visual metric for model confidence
+
+from sklearn.metrics import roc_curve, roc_auc_score
+import matplotlib.pyplot as plt
+
+# Predict probabilities
+y_probs = model.predict_proba(X_test)[:, 1]  # probabilities for the positive class
+
+# Calculate ROC curve
+fpr, tpr, thresholds = roc_curve(y_test, y_probs)
+
+# Calculate AUC score
+auc_score = roc_auc_score(y_test, y_probs)
+print("AUC Score:", auc_score)
+
+# Plot ROC curve
 plt.figure(figsize=(8, 6))
-plt.scatter(y_test, y_pred, color='blue', alpha=0.5)
-plt.plot([min(y_test), max(y_test)], [min(y_test), max(y_test)], 'r--', label='45-degree line')
-plt.title('Predicted vs Actual values')
-plt.xlabel('Actual')
-plt.ylabel('Predicted')
-plt.grid(True)
+plt.plot(fpr, tpr, label=f'ROC curve (AUC = {auc_score:.2f})', color='blue')
+plt.plot([0, 1], [0, 1], 'k--', label='Random guess')  # diagonal line
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('ROC Curve')
+plt.legend(loc='lower right')
 plt.show()
 
-# Insights: What factors influence churn the most?
-# Most Influential Factors: 
-# Based on our data, the most influential factors are likely:
-# 1.Contract Type (Two-year contracts reduce churn the most).
-# 2.MonthlyCharges (High charges may increase churn).
-# 3.TotalCharges (Long-term spending may reduce churn).
+**7. Compare Actual vs Predicted Outcomes**
 
-# Actionable Insights:
-# 1.Offer discounts or incentives for longer contracts (e.g., two-year contracts).
-# 2.Monitor and adjust pricing strategies to avoid high monthly charges.
-# 3.Focus on customer satisfaction for long-term customers to reduce churn.
+Goal: Directly compare predicted vs real churns
+
+**Outcome:**
+
+Visual comparison of churn labels
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import confusion_matrix
+
+# Get the predicted churn labels
+y_pred = model.predict(X_test)
+
+# Create a confusion matrix
+cm = confusion_matrix(y_test, y_pred)
+
+# Plot confusion matrix heatmap
+plt.figure(figsize=(6, 5))
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=['Not Churned', 'Churned'], yticklabels=['Not Churned', 'Churned'])
+plt.xlabel('Predicted')
+plt.ylabel('Actual')
+plt.title('Confusion Matrix: Actual vs Predicted Outcomes')
+plt.show()
+
