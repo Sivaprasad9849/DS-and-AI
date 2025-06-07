@@ -1,0 +1,100 @@
+**Project Name:** Image Classification using CNN on CIFAR-10 Dataset
+
+**Objective:**
+
+To build and train a Convolutional Neural Network (CNN) that can classify images from the CIFAR-10 dataset into one of 10 object categories, such as airplanes, cars, trucks, and ships.
+
+import tensorflow as tf
+from tensorflow.keras import layers, models
+import matplotlib.pyplot as plt
+
+# 1. Load CIFAR-10 Dataset
+(x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
+# Loads the CIFAR-10 dataset.
+# Contains 60,000 color images of size 32x32x3 (RGB)...by using x_train.shape
+# x_train: 50,000 training images (50000, 32, 32, 3)
+# y_train: (50000, 1)
+# x_test: 10,000 test images (10000, 32, 32, 3)
+# y_test: (10000, 1)
+
+# 2. Normalize the data
+x_train, x_test = x_train / 255.0, x_test / 255.0
+# Pixel values range from 0 to 255.
+# Dividing by 255 converts them to the range 0 to 1, which helps the model train faster and more accurately.
+
+# 3. Class names
+class_names = ['airplane','automobile','bird','cat','deer','dog','frog','horse','ship','truck'] # Human-readable labels for each class
+# indexing  :     0             1         2     3     4      5     6       7      8       9
+
+# 4. Build CNN Model
+model = models.Sequential([ # By using Sequential model we can create layers are stacked one after another in order.
+    layers.Conv2D(32, (3,3), activation='relu', input_shape=(32,32,3)), # Convolution Layer 1
+    layers.MaxPooling2D((2,2)),                                         # Max Pooling Layer 1
+    layers.Conv2D(64, (3,3), activation='relu'),                        # Convolution Layer 2
+    layers.MaxPooling2D((2,2)),                                         # Max Pooling Layer 2
+    layers.Conv2D(64, (3,3), activation='relu'),                        # Convolution Layer 3
+    layers.Flatten(),                                                   # Converts the 3D output from previous layers into 1D vector
+    layers.Dense(64, activation='relu'),                                # Dense means Fully connected all neurons, having 64 neurons, applied ReLU activation function
+    layers.Dense(10)                                                    # A fully connected layers with 10 neurons
+])
+
+# 5. Compile the model
+model.compile(optimizer='adam',
+              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+              metrics=['accuracy'])
+# optimizer='adam': Adam = Adaptive Moment Estimation.It is one of the most popular optimizers. Automatically adjusts learning rate during training.
+# Why optimizer?: It helps your model learn faster and more accurately by adapting how much weights are updated.
+# loss=SparseCategoricalCrossentropy, Measures prediction error, Works with integer labels (0–9)
+# from_logits=True	Applies softmax inside loss	Because last layer has no activation
+# metrics=['accuracy']: Tells Keras to monitor the accuracy of the model during training and validation.
+# Why metrics? It helps you understand how well your model is performing after each epoch. Accuracy = % of correct predictions.
+
+# 6. Train the model
+#model.fit(x_train, y_train, epochs=10, validation_data=(x_test, y_test))
+history = model.fit(x_train, y_train, epochs=10, validation_data=(x_test, y_test))
+
+# epochs=10: Train the full dataset 10 times (1 epoch = 1 full pass)
+# validation_data: se test data to evaluate performance after each epoch
+# history: Saves training/validation loss & accuracy
+
+print("x_train shape:", x_train.shape)
+print("y_train shape:", y_train.shape)
+print("x_test shape:", x_test.shape)
+print("y_test shape:", y_test.shape)
+
+# Plot 25 sample images from training set
+plt.figure(figsize=(10, 10))
+for i in range(25):
+    plt.subplot(5, 5, i+1)
+    plt.xticks([])
+    plt.yticks([])
+    plt.grid(False)
+    plt.imshow(x_train[i])
+    plt.xlabel(class_names[y_train[i][0]])
+plt.suptitle("Sample CIFAR-10 Training Images")
+plt.show()
+
+# Plot accuracy and loss curves
+plt.figure(figsize=(14, 5))
+
+# Accuracy
+plt.subplot(1, 2, 1)
+plt.plot(history.history['accuracy'], label='Train Accuracy', marker='o')
+plt.plot(history.history['val_accuracy'], label='Validation Accuracy', marker='o')
+plt.title('Training vs Validation Accuracy')
+plt.xlabel('Epoch')
+plt.ylabel('Accuracy')
+plt.legend()
+
+# Loss
+plt.subplot(1, 2, 2)
+plt.plot(history.history['loss'], label='Train Loss', marker='x')
+plt.plot(history.history['val_loss'], label='Validation Loss', marker='x')
+plt.title('Training vs Validation Loss')
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.legend()
+
+plt.suptitle("Model Performance Over Epochs", fontsize=16)
+plt.tight_layout()
+plt.show()
