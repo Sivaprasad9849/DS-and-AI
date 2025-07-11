@@ -1,0 +1,85 @@
+# Sentiment Analysis on Amazon Product Reviews
+
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.feature_extraction.text import TfidfVectorizer # is a tool used to convert text data into a numerical representation
+import re # Python built-in module: manipulate text data(text cleaning).
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+# Step-1: Load the data
+df = pd.read_csv('AmazonReviews_50Thoundrows.csv')
+print(df.head())
+
+# Step-2: Check the basic info - EDA
+print(df.info())
+print(df.describe())
+
+# Data cleaning & Pre processing
+print("\nChecking Null values:\n", df.isnull().sum())
+df = df.dropna(subset=['Summary', 'ProfileName'])
+print("\nChecking Null values after drop:\n", df.isnull().sum())
+
+# Drop rows with missing values in important columns
+df = df[['Text', 'Score']].dropna()
+
+# Remove neutral reviews
+df = df[df['Score'] != 3]
+
+# Map sentiment
+def map_sentiment(score):
+    return 1 if score > 3 else 0  # 1: Positive, 0: Negative
+
+df['Sentiment'] = df['Score'].apply(map_sentiment)
+print("\nAfter added Sentiment column:\n", df.head())
+
+# Step-3: Text cleaning
+def clean_text(text):
+    text = text.lower()
+    text = re.sub(r'<.*?>', '', text)              # Remove HTML tags
+    text = re.sub(r'[^\w\s]', '', text)            # Remove punctuation
+    text = re.sub(r'\d+', '', text)                # Remove numbers
+    text = re.sub(r'\s+', ' ', text).strip()       # Remove extra whitespace
+    return text
+
+df['Cleaned_Text'] = df['Text'].apply(clean_text)
+
+# Step-4: Feature Extraction
+vectorizer = TfidfVectorizer(max_features=5000)
+X = vectorizer.fit_transform(df['Text']).toarray()
+y = df['Sentiment']
+
+# Step-5: Train-test-split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Step-6: Train & Evaluate the model
+model = LogisticRegression()
+model.fit(X_train, y_train)
+
+# Predict
+y_pred = model.predict(X_test)
+
+print("Accuracy:", accuracy_score(y_test, y_pred))
+print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
+print("Classification Report:\n", classification_report(y_test, y_pred))
+
+# Step-7: Predict on new Reviews
+def predict_sentiment(review_text):
+    clean = clean_text(review_text)
+    vec = vectorizer.transform([clean])
+    prediction = model.predict(vec)[0]
+    return "Positive" if prediction == 1 else "Negative"
+
+print(predict_sentiment("This product is amazing!"))
+print(predict_sentiment("Very bad experience, never buying again."))
+
+# Step-8: Sentiment Distribution
+plt.figure(figsize=(6,4))
+sns.countplot(x='Sentiment', data=df, palette='viridis')
+plt.title("Sentiment Distribution")
+plt.xticks([0,1], ['Negative', 'Positive'])
+plt.xlabel("Sentiment")
+plt.ylabel("Number of Reviews")
+plt.show()
