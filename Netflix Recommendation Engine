@@ -1,0 +1,101 @@
+# Netflix Recommendation Engine
+#Step-1: Import necessary libraries
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, mean_absolute_error
+
+#Ignore warnings
+import warnings
+warnings.filterwarnings("ignore")
+
+#Step-2: Load the data
+movie = pd.read_csv('movie.csv', on_bad_lines='skip') # columns: movieId,title, genres.(on_bad_lines: skip the problematic lines and continue loading the rest of the file)
+rating = pd.read_csv('rating_50thousendRecords.csv', on_bad_lines='skip') # columns: userId, movieId, rating, timestamp.
+
+df = pd.merge(movie, rating, on = 'movieId')
+print(df.head())
+
+#Step-3: Exploratory Data Analysis
+#a) Check basic info
+print("Basic info:\n", df.info())
+
+#b) Ratings distribution
+rating_dist = df['rating'].value_counts().sort_index()
+
+# Plotting ratings distribution
+plt.figure(figsize=(10, 6))
+rating_dist.plot(kind='bar', color='skyblue')
+plt.title('Distribution of Ratings')
+plt.xlabel('Rating')
+plt.ylabel('Count')
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.show()
+
+#c) Top 10 most-rated movies
+#Count number of ratings per movie
+movie_rating_counts = df.groupby('title')['rating'].count()
+#Sort by number of ratings in descending order
+most_rated_movies = movie_rating_counts.sort_values(ascending=False).head(10)
+print("Top 10 most-rated movies:\n", most_rated_movies)
+
+#d) Average rating per movie
+verage_ratings = df.groupby('title')['rating'].mean()
+print("Average rating per movie:\n", verage_ratings)
+
+#Step-4: Prediction Model: Predicting User Ratings
+#We will train a model to predict how a user might rate a movie.
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+from sklearn.metrics import mean_squared_error, mean_absolute_error
+
+# Select features and target
+X = df[['userId', 'movieId']]  # Features
+y = df['rating']               # Target
+
+# Train-Test Split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Scale the data
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# Apply PCA
+pca = PCA(n_components=2)  # Reduce to 2 components
+X_train_pca = pca.fit_transform(X_train_scaled)
+X_test_pca = pca.transform(X_test_scaled)
+
+# Train a Linear Regression Model
+model = LinearRegression()
+model.fit(X_train_pca, y_train)
+
+# Predict
+y_pred = model.predict(X_test_pca)
+
+# Evaluate the model
+mse = mean_squared_error(y_test, y_pred)
+mae = mean_absolute_error(y_test, y_pred)
+rmse = mse ** 0.5
+
+print("Mean Squared Error:", mse)
+print("Mean Absolute Error:", mae)
+print("Root Mean Squared Error:", rmse)
+
+# Plot Actual vs Predicted Ratings
+plt.figure(figsize=(10, 6))
+plt.scatter(y_test, y_pred, alpha=0.3, color='purple')
+plt.plot([y.min(), y.max()], [y.min(), y.max()], 'r--', linewidth=2)
+plt.xlabel('Actual Ratings')
+plt.ylabel('Predicted Ratings')
+plt.title('Actual vs Predicted Movie Ratings')
+plt.grid(True, linestyle='--', alpha=0.5)
+plt.show()
+
+#Step-5: Reduce the Dimensionality of the user-movie rating matrix
+# PCA, LDA, SVD
+
+#Step-6: Recommendation Engine - Collaborative Filtering
+# We will build a User-Based Collaborative System
