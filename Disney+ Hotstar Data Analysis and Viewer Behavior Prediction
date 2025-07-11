@@ -1,0 +1,320 @@
+# DisneyHotstar
+
+# Data Analysis & Visualization
+#Step-1: Load and Explore User Data
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Simulate synthetic Disney+ Hotstar viewer data
+np.random.seed(42)
+n = 1000
+
+data = pd.DataFrame({
+    "user_id": np.random.randint(1000, 2000, n),
+    "genre": np.random.choice(["Drama", "Comedy", "Action", "Romance", "Thriller", "Documentary"], n),
+    "watch_time": pd.to_datetime(np.random.choice(pd.date_range("2024-01-01", periods=90*24, freq="H"), n)),
+    "device_type": np.random.choice(["Mobile", "TV", "Tablet", "Laptop"], n),
+    "viewer_category": np.random.choice(["Free", "Subscriber", "Premium"], n)
+})
+
+# Extract time features
+data["hour"] = data["watch_time"].dt.hour
+data["weekday"] = data["watch_time"].dt.day_name()
+
+# View sample data
+data.head(20)
+
+#Step-2: Visualize peak viewing hours using histograms and line plots
+# Visualize peak viewing hours
+plt.figure(figsize=(10,5))
+sns.histplot(data['hour'], bins=24, kde=True)
+plt.title('Peak Viewing Hours')
+plt.xlabel('Hour of the Day')
+plt.ylabel('Number of Views')
+plt.grid(True)
+plt.show()
+
+#Step-3: Analyze content-type (genre) trends by time slots
+# Analyze genre trends by hour
+genre_hour = data.groupby(['hour', 'genre']).size().unstack().fillna(0)
+#.unstack() is a pivoting function that converts a MultiIndex from rows into columns.
+
+genre_hour.plot(kind='line', figsize=(12,6))
+plt.title('Genre Popularity by Hour')
+plt.xlabel('Hour of Day')
+plt.ylabel('Number of Views')
+plt.grid(True)
+plt.legend(title='Genre')
+plt.show()
+
+#Step-4: Examine device usage distribution across viewer categories
+# Device usage across viewer categories
+plt.figure(figsize=(10,6))
+sns.countplot(data=data, x='device_type', hue='viewer_category')
+plt.title('Device Usage by Viewer Category')
+plt.xlabel('Device Type')
+plt.ylabel('View Count')
+plt.legend(title='Viewer Category')
+plt.grid(True)
+plt.show()
+
+#Step-5: Create dashboards for weekly reports (Matplotlib/Seaborn)
+# Add a 'week' column using watch_time
+data['week'] = data['watch_time'].dt.to_period('W').astype(str)
+
+# Group by week and calculate metrics
+weekly_summary = data.groupby('week').agg(
+    Active_Users=('user_id', 'nunique'),
+    Top_Genre=('genre', lambda x: x.value_counts().idxmax())
+).reset_index()
+
+# Display the simplified dashboard
+print("Weekly Summary Dashboard")
+print(weekly_summary)
+
+#Step-6:  Apply Linear Regression to predict user watch time or subscription conversion
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+
+# Step 1: Simulate synthetic Disney+ Hotstar viewer data
+np.random.seed(42)
+n = 1000
+
+data = pd.DataFrame({
+    "user_id": np.random.randint(1000, 2000, n),
+    "genre": np.random.choice(["Drama", "Comedy", "Action", "Romance", "Thriller", "Documentary"], n),
+    "watch_time": pd.to_datetime(np.random.choice(pd.date_range("2024-01-01", periods=90*24, freq="H"), n)),
+    "device_type": np.random.choice(["Mobile", "TV", "Tablet", "Laptop"], n),
+    "viewer_category": np.random.choice(["Free", "Subscriber", "Premium"], n)
+})
+
+# Step 2: Feature engineering
+data["hour"] = data["watch_time"].dt.hour
+data["weekday"] = data["watch_time"].dt.day_name()
+
+# Step 3: Create target variable with realistic logic
+'''
+data['watch_duration'] = (
+    30  # base minutes
+    + (data['device_type'] == 'TV') * 20
+    + (data['viewer_category'] == 'Premium') * 25
+    + (data['genre'] == 'Drama') * 10
+    + (data['hour'].between(18, 22)) * 15  # prime time
+    + np.random.normal(0, 5, size=n)  # random noise
+)
+'''
+# We are working with synthetic data, which has no "real" watch duration.
+# So, we simulate watch time based on realistic assumptions
+# Add weights for different categorries
+data['watch_duration'] = (
+    30  # base minutes
+    # Add impact based on device_type
+    + data['device_type'].map({ # By using .map() : to assign different values to each category
+        'TV': 20, # TV Watchers 20 mns
+        'Mobile': -5, # Mobile users -5 mns
+        'Laptop': 10,
+        'Tablet': 5
+    })
+    # Add impact based on viewer_category
+    + data['viewer_category'].map({
+        'Free': -10,
+        'Subscriber': 10, # 10 mns watched
+        'Premium': 25
+    })
+    # Add impact based on genre
+    + data['genre'].map({
+        'Drama': 10, # 10 mns watched Drama movie
+        'Comedy': 5,
+        'Action': 8,
+        'Romance': 7,
+        'Thriller': 6,
+        'Documentary': 12
+    })
+    # Prime time (evening hours)
+    + (data['hour'].between(18, 22)) * 15 # 18-20: This range represents prime time — the hours when most people are free and likely to watch content.
+    # Add some random noise
+    + np.random.normal(0, 5, size=n) # This adds natural randomness, like real users who don’t behave perfectly by pattern. It prevents overfitting and makes your data look more real.
+)
+# Why include Prime time?
+# To simulate realistic user behavior — most platforms observe:
+# Longer sessions in the evening
+# Shorter sessions during work/school hours
+# This helps your regression model learn useful patterns!
+
+# Step 4: Prepare features and target
+X = data[['genre', 'device_type', 'viewer_category', 'hour', 'weekday']]
+y = data['watch_duration']
+
+# Step 5: One-hot encode categorical variables
+X_encoded = pd.get_dummies(X, drop_first=True)
+
+# Step 6: Split into train and test sets
+X_train, X_test, y_train, y_test = train_test_split(X_encoded, y, test_size=0.2, random_state=42)
+
+# Step 7: Train Linear Regression model
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+# Step 8: Predict
+y_pred = model.predict(X_test)
+
+# Step 9: Evaluate
+print("Mean Squared Error (MSE):", mean_squared_error(y_test, y_pred))
+print("R² Score:", r2_score(y_test, y_pred))
+
+# Step 10: Visualize
+plt.figure(figsize=(8, 5))
+sns.scatterplot(x=y_test, y=y_pred, alpha=0.6)
+# Add red dashed line for perfect predictions (y = x)
+plt.plot([min(y_test), max(y_test)], [min(y_test), max(y_test)], '--', color='red', linewidth=2, label='Perfect Prediction')
+plt.xlabel("Actual Watch Duration (minutes)")
+plt.ylabel("Predicted Watch Duration (minutes)")
+plt.title("Actual vs Predicted Watch Duration")
+plt.legend()
+plt.grid(True)
+plt.show()
+
+#Step-7: Use Classification Models (Logistic Regression / Decision Trees) to identify:
+# Users likely to subscribe
+# Weekly vs one-time viewers
+# Subsribe, Premium vs Free
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import classification_report, confusion_matrix
+
+np.random.seed(42)
+n = 1000
+
+# Step 1: Generate user data
+data = pd.DataFrame({
+    "user_id": np.random.randint(1000, 2000, n),
+    "genre": np.random.choice(["Drama", "Comedy", "Action", "Romance", "Thriller", "Documentary"], n),
+    "watch_time": pd.to_datetime(np.random.choice(pd.date_range("2024-01-01", periods=90*24, freq="H"), n)),
+    "device_type": np.random.choice(["Mobile", "TV", "Tablet", "Laptop"], n),
+    "viewer_category": np.random.choice(["Free", "Subscriber", "Premium"], n)
+})
+
+# Feature engineering
+data["hour"] = data["watch_time"].dt.hour
+data["weekday"] = data["watch_time"].dt.day_name()
+
+# Simulate watch duration
+data['watch_duration'] = (
+    30
+    + data['device_type'].map({'TV': 20, 'Mobile': -5, 'Laptop': 10, 'Tablet': 5})
+    + data['viewer_category'].map({'Free': -10, 'Subscriber': 10, 'Premium': 25})
+    + data['genre'].map({'Drama': 10, 'Comedy': 5, 'Action': 8, 'Romance': 7, 'Thriller': 6, 'Documentary': 12})
+    + (data['hour'].between(18, 22)) * 15
+    + np.random.normal(0, 5, size=n)
+)
+
+# Step 2: Classification Target 1 — Subscriber vs Free
+# Create binary target: is_subscriber
+data['is_subscriber'] = data['viewer_category'].isin(['Subscriber', 'Premium']).astype(int) # Subscriber or Premium : 1, Free: 0
+print(data.head())
+
+# Step 3: Prepare features and encode
+# Select features
+X = data[['device_type', 'genre', 'hour', 'weekday', 'watch_duration']]
+X = pd.get_dummies(X, drop_first=True)
+
+# Target
+y = data['is_subscriber']
+
+# Step 4: Train-Test Split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Step 5: Train Logistic and Decision tree Classification models
+# Logistic Regression
+logreg = LogisticRegression(max_iter=1000)
+logreg.fit(X_train, y_train)
+log_preds = logreg.predict(X_test)
+
+# Decision Tree
+tree = DecisionTreeClassifier(max_depth=5, random_state=42)
+tree.fit(X_train, y_train)
+tree_preds = tree.predict(X_test)
+
+# Step 6: Evaluate
+print("\nLogistic Regression Report:\n", classification_report(y_test, log_preds))
+print("Decision Tree Report:\n", classification_report(y_test, tree_preds))
+
+#Step-8: Build a simple content recommendation system using collaborative filtering
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics.pairwise import cosine_similarity
+
+np.random.seed(42)
+n = 1000
+
+# Step 1: Generate user data
+data = pd.DataFrame({
+    "user_id": np.random.randint(1000, 2000, n),
+    "genre": np.random.choice(["Drama", "Comedy", "Action", "Romance", "Thriller", "Documentary"], n),
+    "watch_time": pd.to_datetime(np.random.choice(pd.date_range("2024-01-01", periods=90*24, freq="H"), n)),
+    "device_type": np.random.choice(["Mobile", "TV", "Tablet", "Laptop"], n),
+    "viewer_category": np.random.choice(["Free", "Subscriber", "Premium"], n)
+})
+
+# Feature engineering
+data["hour"] = data["watch_time"].dt.hour
+data["weekday"] = data["watch_time"].dt.day_name()
+
+# Simulate watch duration
+data['watch_duration'] = (
+    30
+    + data['device_type'].map({'TV': 20, 'Mobile': -5, 'Laptop': 10, 'Tablet': 5})
+    + data['viewer_category'].map({'Free': -10, 'Subscriber': 10, 'Premium': 25})
+    + data['genre'].map({'Drama': 10, 'Comedy': 5, 'Action': 8, 'Romance': 7, 'Thriller': 6, 'Documentary': 12})
+    + (data['hour'].between(18, 22)) * 15
+    + np.random.normal(0, 5, size=n)
+)
+
+# Build a simple content recommendation system using collaborative filtering
+# 1) Create a User-Item Matrix (pivot on user_id and genre)
+ratings_matrix = data.pivot_table(index="user_id", columns="genre", values="watch_duration", aggfunc="mean").fillna(0)
+
+# 2) Compute User Similarity
+user_similarity = pd.DataFrame(
+    cosine_similarity(ratings_matrix),
+    index=ratings_matrix.index,
+    columns=ratings_matrix.index
+)
+
+# 3) Recommendation function
+def recommend_genres_for_user(user_id, top_n=3):
+    if user_id not in user_similarity:
+        print(f"\n❌ User {user_id} not found in the dataset.")
+        return []
+
+    sim_scores = user_similarity[user_id].sort_values(ascending=False).drop(user_id)
+    top_similar_users = sim_scores.head(5).index
+
+    similar_users_ratings = ratings_matrix.loc[top_similar_users]
+    user_ratings = ratings_matrix.loc[user_id]
+    unwatched = user_ratings[user_ratings == 0].index
+    avg_ratings = similar_users_ratings[unwatched].mean().sort_values(ascending=False)
+
+    return avg_ratings.head(top_n).index.tolist()
+
+# 4) Take user input
+try:
+    input_user = int(input(f"\nEnter your user_id from dataset range [{ratings_matrix.index.min()} - {ratings_matrix.index.max()}]: "))
+    recommendations = recommend_genres_for_user(input_user)
+    if recommendations:
+        print(f"\n🎬 Top recommended genres for user {input_user}: {recommendations}")
+except ValueError:
+    print("\n❌ Invalid input! Please enter a numeric user_id.")
